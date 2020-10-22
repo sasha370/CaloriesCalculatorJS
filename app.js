@@ -233,6 +233,11 @@ const App = (function (ItemCtrl,
 
     //прослушка кнопки Update
     document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateSubmit);
+
+    //прослушка кнопки Back
+    // при нажатии просто скидываем статус формы до базового
+    document.querySelector(UISelectors.backBtn).addEventListener('click', UICtrl.clearEditState);
+
   }
 
   //Add Item submit
