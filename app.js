@@ -91,7 +91,22 @@ const ItemCtrl = (function () {
         }
       });
       return found;
-    }
+    },
+
+    // удаляем позицию из базы
+    deleteItem: function (id) {
+      const ids = data.items.map(function (item) { //создаем список id из базы
+        return item.id;
+      });
+
+      const index = ids.indexOf(id); //ищем индекс текущей позиции
+      data.items.splice(index, 1); //убираем позицию из базы
+    },
+
+    // Удаялем все данные из базы
+    clearAllItems: function (){
+      data.items = [];
+    },
 
   }
 })();
@@ -106,9 +121,11 @@ const UICtrl = (function () {
     updateBtn: '.update-btn',
     deleteBtn: '.delete-btn',
     backBtn: '.back-btn',
+    clearBtn: '.clear-btn',
     itemNameInput: '#item-name',
     itemCaloriesInput: '#item-calories',
-    totalCalories: '.total-calories'
+    totalCalories: '.total-calories',
+
 
   }
 
@@ -206,6 +223,20 @@ const UICtrl = (function () {
       })
     },
 
+    deleteListItem: function (id) {
+      const itemId = `#item-${id}`;  // создаем переменныю равную id позиции на отрисовке
+      const item = document.querySelector(itemId);
+      item.remove();
+    },
+
+    removeItems: function (){
+      let listItems = document.querySelectorAll(UISelectors.listItems);  //собираем все строки на странице
+      listItems = Array.from(listItems);  //преобразуем в массив
+      listItems.forEach(function (item){ //удаляем каждую строку
+        item.remove();
+      })
+    },
+
   }
 })();
 
@@ -234,9 +265,15 @@ const App = (function (ItemCtrl,
     //прослушка кнопки Update
     document.querySelector(UISelectors.updateBtn).addEventListener('click', itemUpdateSubmit);
 
+    //прослушка кнопки Delete
+    document.querySelector(UISelectors.deleteBtn).addEventListener('click', itemDeleteSubmit);
+
     //прослушка кнопки Back
     // при нажатии просто скидываем статус формы до базового
     document.querySelector(UISelectors.backBtn).addEventListener('click', UICtrl.clearEditState);
+
+    //прослушка кнопки Clear
+    document.querySelector(UISelectors.clearBtn).addEventListener('click', clearAllItemsClick);
 
   }
 
@@ -287,6 +324,33 @@ const App = (function (ItemCtrl,
 
     e.preventDefault();
   };
+
+
+  // УДАЛЕНИЕ позиции
+  const itemDeleteSubmit = function (e) {
+    const currentItem = ItemCtrl.getCurrentItem(); //получаем текущую позицию
+
+    ItemCtrl.deleteItem(currentItem.id);  //передаем данные на удаление из базы
+    UICtrl.deleteListItem(currentItem.id);  //передаем данные на удаление из отрисовки
+    // Перерисовываем счетчик
+    const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
+    UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
+
+    UICtrl.clearEditState(); //Сбрасываем форму для редактирования
+
+    e.preventDefault();
+  };
+
+  // Очистка всех данных
+  const clearAllItemsClick = function (){
+    ItemCtrl.clearAllItems(); // Удаляем все данные из базы
+    UICtrl.removeItems(); // удаляем все отрисованные Данные
+    UICtrl.hideList();  //прячем список полностью
+    // Перерисовываем счетчик
+    const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
+    UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
+  };
+
 
   // ПЕРВОНАЧАЛЬНАЯ инициализация при запуске
   return { // Public method
