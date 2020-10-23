@@ -28,6 +28,17 @@ const StorageCtrl = (function () {
       }
     },
 
+    // Обновляем данные в LS
+    updateItemStorage: function (updatedItem) {
+      let items = JSON.parse(localStorage.getItem('items'));  // Достаем данные из LS
+      items.forEach(function (item, index) {
+        if (item.id === updatedItem.id) { //ищем запись в LS по id
+          items.splice(index, 1, updatedItem); //удаляем запись и на ее место вставляем новую
+        }
+      });
+      localStorage.setItem('items', JSON.stringify(items));  //Пушим массив в LS
+
+    }
 
   }
 })();
@@ -354,6 +365,7 @@ const App = (function (ItemCtrl,
     // Перерисовываем счетчик
     const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
     UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
+    StorageCtrl.updateItemStorage(updateItem); //обновляем данные в LS
 
     UICtrl.clearEditState(); //Сбрасываем форму для редактирования
 
