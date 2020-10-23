@@ -1,4 +1,37 @@
 // Storage controller
+const StorageCtrl = (function () {
+
+  return { // Public method
+
+    // СОХРАНЯЕМ позицию в LS
+    storeItem: function (item) {
+      let items;
+      if (localStorage.getItem('items') === null) { //если LS пустой
+        items = [];
+        items.push(item); //пушим в массив наше новое значение
+        localStorage.setItem('items', JSON.stringify(items)); // создаем запись items: {item.name и т.д.}
+      } else { //если в LS уже есть данные
+        items = JSON.parse(localStorage.getItem('items'));   // выбираем из LS данные и пишем их в массив
+        items.push(item); //Пушим в массив новую строчку
+        localStorage.setItem('items', JSON.stringify(items));  //Пушим массив в LS
+      }
+    },
+
+    // ПОЛУЧАЕМ позиции из LS
+    getItemsFromStorage: function () {
+      let items;
+      if (localStorage.getItem('items') === null) {  //если LS пусто, то просто создаем пустой массив
+        items = [];
+      } else {
+        items = JSON.parse(localStorage.getItem('items'));  //Если не пустой, то парсим их в массив и возвращаем
+        return items;
+      }
+    },
+
+
+  }
+})();
+
 
 // Item controller
 const ItemCtrl = (function () {
@@ -9,14 +42,16 @@ const ItemCtrl = (function () {
     this.calories = calories;
   }
 
-  // Data Stracture /State
+  // Data Structure /State
   // Данные , которые будут гулять среди методов? но они не доступны снаружи
   const data = {
-    items: [
-      // {id: 0, name: 'Steak ', calories: 1200},
-      // {id: 1, name: 'Eggs ', calories: 200},
-      // {id: 2, name: 'Cookie ', calories: 2200},
-    ],  // Список всех позиций
+    // items: [
+    //   {id: 0, name: 'Steak ', calories: 1200},
+    //   {id: 1, name: 'Eggs ', calories: 200},
+    //   {id: 2, name: 'Cookie ', calories: 2200},
+    // ],
+
+    items: StorageCtrl.getItemsFromStorage(),//    Список всех позиций из LS
     currentItem: null,  // текущая позиция ( для удаления, редактирования)
     totalCalories: 0
   }
@@ -104,7 +139,7 @@ const ItemCtrl = (function () {
     },
 
     // Удаялем все данные из базы
-    clearAllItems: function (){
+    clearAllItems: function () {
       data.items = [];
     },
 
@@ -229,10 +264,10 @@ const UICtrl = (function () {
       item.remove();
     },
 
-    removeItems: function (){
+    removeItems: function () {
       let listItems = document.querySelectorAll(UISelectors.listItems);  //собираем все строки на странице
       listItems = Array.from(listItems);  //преобразуем в массив
-      listItems.forEach(function (item){ //удаляем каждую строку
+      listItems.forEach(function (item) { //удаляем каждую строку
         item.remove();
       })
     },
@@ -243,7 +278,7 @@ const UICtrl = (function () {
 
 // app Controller
 const App = (function (ItemCtrl,
-                       UICtrl) {
+                       UICtrl, StorageCtrl) {
 // Load Event Listeners
   const loadEventListeners = function () {
     const UISelectors = UICtrl.getSelectors(); // получаем из UI контроллера список доступных селекторов
@@ -287,7 +322,7 @@ const App = (function (ItemCtrl,
 
       const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
       UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
-
+      StorageCtrl.storeItem(newItem); // созраняем переменную в LS
       UICtrl.clearInput(); //Очищаем поля ввода
     }
 
@@ -342,7 +377,7 @@ const App = (function (ItemCtrl,
   };
 
   // Очистка всех данных
-  const clearAllItemsClick = function (){
+  const clearAllItemsClick = function () {
     ItemCtrl.clearAllItems(); // Удаляем все данные из базы
     UICtrl.removeItems(); // удаляем все отрисованные Данные
     UICtrl.hideList();  //прячем список полностью
@@ -372,7 +407,7 @@ const App = (function (ItemCtrl,
     }
   }
 
-})(ItemCtrl, UICtrl);
+})(ItemCtrl, UICtrl, StorageCtrl);
 
 
 // Initialize App
