@@ -37,7 +37,18 @@ const StorageCtrl = (function () {
         }
       });
       localStorage.setItem('items', JSON.stringify(items));  //Пушим массив в LS
+    },
 
+    // УДАЛЯЕМ позицию из LS
+    deleteItemFromStorage: function (id){
+      let items = JSON.parse(localStorage.getItem('items'));  // Достаем данные из LS
+
+      items.forEach(function (item, index) {
+        if (item.id === id) { //ищем запись в LS по id
+          items.splice(index, 1); //удаляем запись
+        }
+      });
+      localStorage.setItem('items', JSON.stringify(items));  //Пушим массив в LS
     }
 
   }
@@ -382,7 +393,7 @@ const App = (function (ItemCtrl,
     // Перерисовываем счетчик
     const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
     UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
-
+    StorageCtrl.deleteItemFromStorage(currentItem.id); /// Удаляем запись из LS
     UICtrl.clearEditState(); //Сбрасываем форму для редактирования
 
     e.preventDefault();
