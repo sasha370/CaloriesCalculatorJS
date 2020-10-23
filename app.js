@@ -24,8 +24,8 @@ const StorageCtrl = (function () {
         items = [];
       } else {
         items = JSON.parse(localStorage.getItem('items'));  //Если не пустой, то парсим их в массив и возвращаем
-        return items;
       }
+        return items;
     },
 
     // Обновляем данные в LS
@@ -49,7 +49,12 @@ const StorageCtrl = (function () {
         }
       });
       localStorage.setItem('items', JSON.stringify(items));  //Пушим массив в LS
-    }
+    },
+
+    // ОЧИЩАЕМ хранилище
+    clearItemsStorage: function (){
+      localStorage.removeItem('items');
+    },
 
   }
 })();
@@ -231,7 +236,7 @@ const UICtrl = (function () {
       document.querySelector(UISelectors.itemCaloriesInput).value = '';
     },
 
-    hideList: function () { // Скрывает список UL, используем когад он пуст
+    hideList: function () { // Скрывает список UL, используем когда  он пуст
       document.querySelector(UISelectors.itemList).style.display = 'none';
     },
 
@@ -401,12 +406,14 @@ const App = (function (ItemCtrl,
 
   // Очистка всех данных
   const clearAllItemsClick = function () {
+    StorageCtrl.clearItemsStorage(); ///  Очищаем LS
     ItemCtrl.clearAllItems(); // Удаляем все данные из базы
     UICtrl.removeItems(); // удаляем все отрисованные Данные
     UICtrl.hideList();  //прячем список полностью
     // Перерисовываем счетчик
     const totalCalories = ItemCtrl.getTotalCalories();  //Получаем сумму всех каллорий
     UICtrl.showTotalCalories(totalCalories); //Отправляем на отрисовку
+
   };
 
 
